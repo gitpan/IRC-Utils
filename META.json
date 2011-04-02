@@ -49,7 +49,7 @@
          "web" : "http://github.com/hinrik/irc-utils"
       }
    },
-   "version" : "0.01",
+   "version" : "0.02",
    "x_authority" : "cpan:HINRIK"
 }
 
