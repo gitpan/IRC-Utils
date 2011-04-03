@@ -52,9 +52,13 @@ FUNCTIONS
     the IRC lowercase equivalent of the passed string.
 
   "parse_mode_line"
-    Takes a list representing an IRC mode line. Returns a hashref. If the
-    modeline couldn't be parsed the hashref will be empty. On success the
-    following keys will be available in the hashref:
+    Takes a list representing an IRC mode line. Returns a hashref.
+    Optionally you can also supply an arrayref and a hashref to specify
+    valid channel modes (default: "[qw(beI k l imnpstaqr)]") and status
+    modes (default: "{o => '@', h => '%', v => '+'}"), respectively.
+
+    If the modeline couldn't be parsed the hashref will be empty. On success
+    the following keys will be available in the hashref:
 
     'modes', an arrayref of normalised modes;
 

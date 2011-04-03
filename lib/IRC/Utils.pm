@@ -3,7 +3,7 @@ BEGIN {
   $IRC::Utils::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $IRC::Utils::VERSION = '0.05';
+  $IRC::Utils::VERSION = '0.06';
 }
 
 use strict;
@@ -34,6 +34,7 @@ use constant {
     REVERSE     => "\x16",
     ITALIC      => "\x1d",
     FIXED       => "\x11",
+    BLINK       => "\x06",
 
     # mIRC colors
     WHITE       => "\x0300",
@@ -60,7 +61,7 @@ our %NUMERIC2NAME = (
    '002' => 'RPL_YOURHOST',
    '003' => 'RPL_CREATED',
    '004' => 'RPL_MYINFO',
-   '005' => 'RPL_BOUNCE',
+   '005' => 'RPL_ISUPPORT',
    '200' => 'RPL_TRACELINK',
    '201' => 'RPL_TRACECONNECTING',
    '202' => 'RPL_TRACEHANDSHAKE',
@@ -356,7 +357,7 @@ sub gen_mode_change {
 sub is_valid_nick_name {
     my ($nickname) = @_;
     return if !defined $nickname || !length $nickname;
-    return 1 if $nickname =~ /^[A-Za-z_0-9`\-^\|\\\{}\[\]]+$/;
+    return 1 if $nickname =~ /^[A-Za-z_`\-^\|\\\{}\[\]][A-Za-z_0-9`\-^\|\\\{}\[\]]*$/;
     return;
 }
 
@@ -426,7 +427,7 @@ sub has_color {
 sub has_formatting {
     my ($string) = @_;
     return if !defined $string;
-    return 1 if $string =~/[\x02\x1f\x16\x1d\x11]/;
+    return 1 if $string =~/[\x02\x1f\x16\x1d\x11\x06]/;
     return;
 }
 
@@ -451,7 +452,7 @@ sub strip_color {
 sub strip_formatting {
     my ($string) = @_;
     return if !defined $string;
-    $string =~ s/[\x0f\x02\x1f\x16\x1d\x11]//g;
+    $string =~ s/[\x0f\x02\x1f\x16\x1d\x11\x06]//g;
 
     # strip cancellation codes too if there are no color codes
     $string =~ s/\x0f//g if !has_color($string);
@@ -555,7 +556,12 @@ lowercase equivalent of the passed string.
 
 =head2 C<parse_mode_line>
 
-Takes a list representing an IRC mode line. Returns a hashref. If the modeline
+Takes a list representing an IRC mode line. Returns a hashref. Optionally
+you can also supply an arrayref and a hashref to specify valid channel
+modes (default: C<[qw(beI k l imnpstaqr)]>) and status modes (default:
+C<< {o => '@', h => '%', v => '+'} >>), respectively.
+
+If the modeline
 couldn't be parsed the hashref will be empty. On success the following keys
 will be available in the hashref:
 
