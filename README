@@ -8,8 +8,8 @@ SYNOPSIS
      use IRC::Utils ':ALL';
 
      my $nickname = '^Lame|BOT[moo]';
-     my $uppercase_nick = u_irc($nickname);
-     my $lowercase_nick = l_irc($nickname);
+     my $uppercase_nick = uc_irc($nickname);
+     my $lowercase_nick = lc_irc($nickname);
 
      my $mode_line = 'ov+b-i Bob sue stalin*!*@*';
      my $hashref = parse_mode_line($mode_line);
@@ -39,13 +39,13 @@ DESCRIPTION
     encoding and formatting, etc.
 
 FUNCTIONS
-  "u_irc"
+  "uc_irc"
     Takes one mandatory parameter, a string to convert to IRC uppercase, and
     one optional parameter, the casemapping of the ircd (which can be
     'rfc1459', 'strict-rfc1459' or 'ascii'. Default is 'rfc1459'). Returns
     the IRC uppercase equivalent of the passed string.
 
-  "l_irc"
+  "lc_irc"
     Takes one mandatory parameter, a string to convert to IRC lowercase, and
     one optional parameter, the casemapping of the ircd (which can be
     'rfc1459', 'strict-rfc1459' or 'ascii'. Default is 'rfc1459'). Returns
@@ -85,8 +85,8 @@ FUNCTIONS
     processed with "parse_mask" to ensure that it is normalised) and
     something to match against the IRC mask, such as a nick!user@hostname
     string. Returns a true value if they match, a false value otherwise.
-    Optionally, one may pass the casemapping (see "u_irc"), as this function
-    uses "u_irc" internally.
+    Optionally, one may pass the casemapping (see "uc_irc"), as this
+    function uses "uc_irc" internally.
 
   "matches_mask_array"
     Takes two array references, the first being a list of strings
@@ -94,7 +94,7 @@ FUNCTIONS
     the masks. Returns an empty hashref if there are no matches. Otherwise,
     the keys will be the masks matched, each value being an arrayref of the
     strings that matched it. Optionally, one may pass the casemapping (see
-    "u_irc"), as this function uses "u_irc" internally.
+    "uc_irc"), as this function uses "uc_irc" internally.
 
   "unparse_mode_line"
     Takes one argument, a string representing a number of mode changes.
