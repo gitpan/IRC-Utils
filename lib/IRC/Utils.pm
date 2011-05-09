@@ -3,7 +3,7 @@ BEGIN {
   $IRC::Utils::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $IRC::Utils::VERSION = '0.07';
+  $IRC::Utils::VERSION = '0.08';
 }
 
 use strict;
@@ -430,7 +430,8 @@ sub is_valid_chan_name {
     my $chanprefix = join '', @$chantypes;
     return if !defined $channel || !length $channel;
 
-    return 1 if $channel =~ /^[$chanprefix][^ \a\0\012\015,]+$/;
+    return if bytes::length($channel) > 200;
+    return 1 if $channel =~ /^[$chanprefix][^ \a\0\012\015,:]+$/;
     return;
 }
 
@@ -825,17 +826,17 @@ non-ASCII characters in channel names. IRC modules generally don't explicitly
 encode or decode any IRC traffic, but they do have to concatenate parts of a
 message (e.g. a channel name and a message) before sending it over the wire.
 So when you do something like C<< privmsg($channel, 'æði') >>, where
-C<$chanbel> is the unmodified channel name (a byte string) you got from an
+C<$channel> is the unmodified channel name (a byte string) you got from an
 earlier IRC message, the channel name will get double-encoded when
-concatenated with the message (a non-ASCII text string) if it contains
-non-ASCII bytes.
+concatenated with your message (a non-ASCII text string) if the message
+contains non-ASCII characters.
 
 To prevent this, you can't simply call L<C<decode_irc>|/decode_irc> on the
 channel name and then use it. C<'#æði'> in CP1252 is not the same channel as
 C<'#æði'> in UTF-8, since they are represented as different strings of bytes.
 The channel name and your message must therefore both be byte strings, or
-both be text strings If they're text strings, the UTF-8 flag must be off for
-both, or on for both.
+both be text strings. If they're text strings, the UTF-8 flag must be off
+for both, or on for both.
 
 A simple rule to follow is to call L<C<encode_utf8>|Encode> on any part
 (channel or message) which is a text string. Here are some examples:
