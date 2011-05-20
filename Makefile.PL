@@ -4,7 +4,7 @@ use warnings;
 
 BEGIN { require 5.008001; }
 
-use ExtUtils::MakeMaker 6.31;
+use ExtUtils::MakeMaker 6.30;
 
 
 
@@ -13,14 +13,14 @@ my %WriteMakefileArgs = (
   'AUTHOR' => 'Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>, Chris Williams <chris@bingosnet.co.uk>',
   'BUILD_REQUIRES' => {},
   'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.31'
+    'ExtUtils::MakeMaker' => '6.30'
   },
   'DISTNAME' => 'IRC-Utils',
   'EXE_FILES' => [],
   'LICENSE' => 'perl',
   'NAME' => 'IRC::Utils',
   'PREREQ_PM' => {},
-  'VERSION' => '0.08',
+  'VERSION' => '0.09',
   'test' => {
     'TESTS' => 't/*.t'
   }

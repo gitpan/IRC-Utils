@@ -3,7 +3,7 @@ BEGIN {
   $IRC::Utils::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $IRC::Utils::VERSION = '0.08';
+  $IRC::Utils::VERSION = '0.09';
 }
 
 use strict;
@@ -16,11 +16,11 @@ require Exporter;
 use base qw(Exporter);
 our @EXPORT_OK = qw(
     uc_irc lc_irc parse_mode_line parse_mask matches_mask matches_mask_array
-    unparse_mode_line gen_mode_change parse_user is_valid_nick_name decode_irc
-    is_valid_chan_name has_color has_formatting strip_color strip_formatting
-    NORMAL BOLD UNDERLINE REVERSE ITALIC FIXED WHITE BLACK BLUE GREEN RED
-    BROWN PURPLE ORANGE YELLOW LIGHT_GREEN TEAL LIGHT_CYAN LIGHT_BLUE PINK
-    GREY LIGHT_GREY numeric_to_name name_to_numeric
+    unparse_mode_line gen_mode_change parse_user is_valid_nick_name eq_irc
+    decode_irc is_valid_chan_name has_color has_formatting strip_color
+    strip_formatting NORMAL BOLD UNDERLINE REVERSE ITALIC FIXED WHITE BLACK
+    BLUE GREEN RED BROWN PURPLE ORANGE YELLOW LIGHT_GREEN TEAL LIGHT_CYAN
+    LIGHT_BLUE PINK GREY LIGHT_GREY numeric_to_name name_to_numeric
 );
 our %EXPORT_TAGS = ( ALL => [@EXPORT_OK] );
 
@@ -315,6 +315,13 @@ sub lc_irc {
     return $value;
 }
 
+sub eq_irc {
+    my ($first, $second, $type) = @_;
+    return if !defined $first || !defined $second;
+    return 1 if lc_irc($first, $type) eq lc_irc($second, $type);
+    return;
+}
+
 sub parse_mode_line {
     my @args = @_;
 
@@ -573,6 +580,8 @@ IRC::Utils - Common utilities for IRC-related tasks
  my $uppercase_nick = uc_irc($nickname);
  my $lowercase_nick = lc_irc($nickname);
 
+ print "They're equivalent\n" if eq_irc($uppercase_nick, $lowercase_nick);
+
  my $mode_line = 'ov+b-i Bob sue stalin*!*@*';
  my $hashref = parse_mode_line($mode_line);
 
@@ -616,6 +625,18 @@ Takes one mandatory parameter, a string to convert to IRC lowercase, and one
 optional parameter, the casemapping of the ircd (which can be B<'rfc1459'>,
 B<'strict-rfc1459'> or B<'ascii'>. Default is B<'rfc1459'>). Returns the IRC
 lowercase equivalent of the passed string.
+
+=head2 C<eq_irc>
+
+Takes two mandatory parameters, IRC strings (channels or nicknames) to
+compare. A third, optional parameter specifies the casemapping. Returns true
+if the two strings are equivalent, false otherwise
+
+ # long version
+ lc_irc($one, $map) eq lc_irc($two, $map)
+
+ # short version
+ eq_irc($one, $two, $map)
 
 =head2 C<parse_mode_line>
 
@@ -828,20 +849,23 @@ message (e.g. a channel name and a message) before sending it over the wire.
 So when you do something like C<< privmsg($channel, 'æði') >>, where
 C<$channel> is the unmodified channel name (a byte string) you got from an
 earlier IRC message, the channel name will get double-encoded when
-concatenated with your message (a non-ASCII text string) if the message
-contains non-ASCII characters.
+concatenated with your message (a non-ASCII text string) if the channel name
+contains non-ASCII bytes.
 
-To prevent this, you can't simply call L<C<decode_irc>|/decode_irc> on the
-channel name and then use it. C<'#æði'> in CP1252 is not the same channel as
-C<'#æði'> in UTF-8, since they are represented as different strings of bytes.
-The channel name and your message must therefore both be byte strings, or
-both be text strings. If they're text strings, the UTF-8 flag must be off
-for both, or on for both.
+To prevent this, you can't simply L<decode|/decode_irc> the channel name and
+then use it. C<'#æði'> in CP1252 is not the same channel as C<'#æði'> in
+UTF-8, since they are encoded as different sequences of bytes, and the IRC
+server only cares about the byte representation. Therefore, when using a
+channel name you got from the server (e.g. when replying to message), you
+should use the original byte string (before it has been decoded with
+L<C<decode_irc>|/decode_irc>), and encode any other parameters (with
+L<C<encode_utf8>|Encode>) so that your message will be concatenated
+correctly. At some point, you'll probably want to print the channel name,
+write it to a log file or use it in a filename, so you'll eventually have to
+decode it, at which point the UTF-8 C<#æði> and CP1252 C<#æði> will have to
+be considered equivalent.
 
-A simple rule to follow is to call L<C<encode_utf8>|Encode> on any part
-(channel or message) which is a text string. Here are some examples:
-
- use Encode qw(encode_utf8);
+ use Encode qw(encode_utf8 encode);
 
  sub message_handler {
      # these three are all byte strings
@@ -870,8 +894,20 @@ A simple rule to follow is to call L<C<encode_utf8>|Encode> on any part
      privmsg($channel, $msg_bytes);
 
      # good: $chan_bytes and $message are both byte strings
-     my $chan_bytes = encode_utf8('#æði');
-     privmsg($chan_bytes, $message);
+     # here we're sending a message to the utf8-encoded #æði
+     my $utf8_bytes = encode_utf8('#æði');
+     privmsg($utf8_bytes, $message);
+
+     # good: $chan_bytes and $message are both byte strings
+     # here we're sending a message to the cp1252-encoded #æði
+     my $cp1252_bytes = encode('cp1252', '#æði');
+     privmsg($cp1252_bytes, $message);
+
+     # bad: $channel is in an undetermined encoding
+     log_message("Got message from $channel");
+
+     # good: using the decoded version of $channel
+     log_message("Got message from ".decode_irc($channel));
  }
 
 See also L<Encode|Encode>, L<perluniintro|perluniintro>,
