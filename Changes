@@ -1,5 +1,10 @@
 Revision history for IRC-Utils
 
+0.10  Sun May 22 16:12:50 GMT 2011
+    - Fix failure in parse_mask() when the mask doesn't contain '!'
+    - matches_mask(): Don't call parse_mask() on the argument first
+    - Rename parse_mask() to normalize_mask() for clarity
+
 0.09  Fri May 20 03:22:30 GMT 2011
     - More detailed explanation of channel name encoding issues
     - Add eq_irc() convenience function

@@ -3,7 +3,7 @@ BEGIN {
   $IRC::Utils::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $IRC::Utils::VERSION = '0.09';
+  $IRC::Utils::VERSION = '0.10';
 }
 
 use strict;
@@ -15,7 +15,7 @@ use Encode::Guess;
 require Exporter;
 use base qw(Exporter);
 our @EXPORT_OK = qw(
-    uc_irc lc_irc parse_mode_line parse_mask matches_mask matches_mask_array
+    uc_irc lc_irc parse_mode_line normalize_mask matches_mask matches_mask_array
     unparse_mode_line gen_mode_change parse_user is_valid_nick_name eq_irc
     decode_irc is_valid_chan_name has_color has_formatting strip_color
     strip_formatting NORMAL BOLD UNDERLINE REVERSE ITALIC FIXED WHITE BLACK
@@ -368,7 +368,7 @@ sub parse_mode_line {
     return $hashref;
 }
 
-sub parse_mask {
+sub normalize_mask {
     my ($arg) = @_;
     return if !defined $arg;
 
@@ -377,6 +377,7 @@ sub parse_mask {
     my $remainder;
     if ($arg !~ /!/ and $arg =~ /@/) {
         $remainder = $arg;
+        $mask[0] = '*';
     }
     else {
         ($mask[0], $remainder) = split /!/, $arg, 2;
@@ -387,7 +388,7 @@ sub parse_mask {
     $mask[2] =~ s/@//g if defined $mask[2];
 
     for my $i (1..2) {
-        $mask[$i] = '*' if !$mask[$i];
+        $mask[$i] = '*' if !defined $mask[$i];
     }
     return $mask[0] . '!' . $mask[1] . '@' . $mask[2];
 }
@@ -465,9 +466,6 @@ sub matches_mask {
     my ($mask, $match, $mapping) = @_;
     return if !defined $mask || !length $mask;
     return if !defined $match || !length $match;
-
-    $mask = parse_mask($mask);
-    $mask =~ s/\*+/*/g;
 
     my $umask = quotemeta uc_irc($mask, $mapping);
     $umask =~ s/\\\*/[\x01-\xFF]{0,}/g;
@@ -586,7 +584,7 @@ IRC::Utils - Common utilities for IRC-related tasks
  my $hashref = parse_mode_line($mode_line);
 
  my $banmask = 'stalin*';
- my $full_banmask = parse_mask($banmask);
+ my $full_banmask = normalize_mask($banmask);
 
  if (matches_mask($full_banmask, 'stalin!joe@kremlin.ru')) {
      print "EEK!";
@@ -663,25 +661,24 @@ Example:
     args  => [ 'Bob', 'sue', 'stalin*!*@*' ],
  }
 
-=head2 C<parse_mask>
+=head2 C<normalize_mask>
 
 Takes one parameter, a string representing an IRC mask. Returns a normalised
 full mask.
 
 Example:
 
- $fullbanmask = parse_mask( 'stalin*' );
+ $fullbanmask = normalize_mask( 'stalin*' );
 
  # $fullbanmask will be: 'stalin*!*@*';
 
 =head2 C<matches_mask>
 
-Takes two parameters, a string representing an IRC mask (it'll be processed
-with L<C<parse_mask>|/parse_mask> to ensure that it is normalised)
-and something to match against the IRC mask, such as a nick!user@hostname
-string. Returns a true value if they match, a false value otherwise.
-Optionally, one may pass the casemapping (see L<C<uc_irc>|/uc_irc>), as this
-function uses C<uc_irc> internally.
+Takes two parameters, a string representing an IRC mask and something to
+match against the IRC mask, such as a nick!user@hostname string. Returns
+a true value if they match, a false value otherwise. Optionally, one may
+pass the casemapping (see L<C<uc_irc>|/uc_irc>), as this function uses
+C<uc_irc> internally.
 
 =head2 C<matches_mask_array>
 

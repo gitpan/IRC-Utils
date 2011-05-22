@@ -2,7 +2,7 @@ use strict;
 use warnings FATAL => 'all';
 use Encode qw(encode);
 use IRC::Utils qw(:ALL);
-use Test::More tests => 43;
+use Test::More tests => 44;
 
 is('SIMPLE', uc_irc('simple'), 'Upper simple test');
 is('simple', lc_irc('SIMPLE'), 'Lower simple test');
@@ -35,7 +35,10 @@ my $hashref3 = parse_mode_line(qw(+b -b!*@*));
 is($hashref3->{modes}->[0], '+b', 'Parse mode test 5');
 is($hashref3->{args}->[0], '-b!*@*', 'Parse mode test 6');
 
-my $banmask = parse_mask('stalin*');
+my $partial_mask = normalize_mask('*@*');
+is($partial_mask, '*!*@*', 'Normalized partial mask');
+
+my $banmask = normalize_mask('stalin*');
 my $match = 'stalin!joe@kremlin.ru';
 my $no_match = 'BinGOs!foo@blah.com';
 is($banmask, 'stalin*!*@*', 'Parse ban mask test');

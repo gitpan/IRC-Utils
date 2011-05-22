@@ -25,5 +25,5 @@ resources:
   homepage: http://search.cpan.org/dist/IRC-Utils/
   license: http://dev.perl.org/licenses/
   repository: git://github.com/hinrik/irc-utils.git
-version: 0.09
+version: 0.10
 x_authority: cpan:HINRIK
