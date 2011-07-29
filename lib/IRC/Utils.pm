@@ -3,7 +3,7 @@ BEGIN {
   $IRC::Utils::AUTHORITY = 'cpan:HINRIK';
 }
 BEGIN {
-  $IRC::Utils::VERSION = '0.10';
+  $IRC::Utils::VERSION = '0.11';
 }
 
 use strict;
@@ -129,6 +129,8 @@ our %NUMERIC2NAME = (
    '303' => 'RPL_ISON',              # RFC1459
    '305' => 'RPL_UNAWAY',            # RFC1459
    '306' => 'RPL_NOWAWAY',           # RFC1459
+   '307' => 'RPL_WHOISREGNICK',      # Bahamut, Unreal, Plexus
+   '310' => 'RPL_WHOISMODES',        # Plexus
    '311' => 'RPL_WHOISUSER',         # RFC1459
    '312' => 'RPL_WHOISSERVER',       # RFC1459
    '313' => 'RPL_WHOISOPERATOR',     # RFC1459
@@ -148,7 +150,7 @@ our %NUMERIC2NAME = (
    '331' => 'RPL_NOTOPIC',           # RFC1459
    '332' => 'RPL_TOPIC',             # RFC1459
    '333' => 'RPL_TOPICWHOTIME',      # ircu
-   '333' => 'RPL_WHOISACTUALLY',     # Bahamut, ircu
+   '338' => 'RPL_WHOISACTUALLY',     # Bahamut, ircu
    '340' => 'RPL_USERIP',            # ircu
    '341' => 'RPL_INVITING',          # RFC1459
    '342' => 'RPL_SUMMONING',         # RFC1459
