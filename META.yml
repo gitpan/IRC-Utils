@@ -22,8 +22,8 @@ requires:
   perl: 5.008001
 resources:
   bugtracker: https://rt.cpan.org/Public/Dist/Display.html?Name=IRC-Utils
-  homepage: http://search.cpan.org/dist/IRC-Utils/
+  homepage: http://metacpan.org/release/IRC-Utils
   license: http://dev.perl.org/licenses/
   repository: git://github.com/hinrik/irc-utils.git
-version: 0.11
+version: 0.12
 x_authority: cpan:HINRIK

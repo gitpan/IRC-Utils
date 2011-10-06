@@ -39,7 +39,7 @@
          "mailto" : "bug-IRC-Utils@rt.cpan.org",
          "web" : "https://rt.cpan.org/Public/Dist/Display.html?Name=IRC-Utils"
       },
-      "homepage" : "http://search.cpan.org/dist/IRC-Utils/",
+      "homepage" : "http://metacpan.org/release/IRC-Utils",
       "license" : [
          "http://dev.perl.org/licenses/"
       ],
@@ -49,7 +49,7 @@
          "web" : "http://github.com/hinrik/irc-utils"
       }
    },
-   "version" : "0.11",
+   "version" : "0.12",
    "x_authority" : "cpan:HINRIK"
 }
 
